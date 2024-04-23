@@ -14,23 +14,23 @@ public class AsteroideController : MonoBehaviour
             player = value;
         }
     }
-    private int damage;
+    private Rigidbody _compRigidbody;
+    [SerializeField] private int damage;
     private Vector3 playerPosition;
     private Vector3 direction;
     [SerializeField] private float speed;
     [SerializeField] private float rotationSpeed;
-    private Rigidbody rb;
     void Start()
     {
         playerPosition = player.transform.position;
-        rb = GetComponent<Rigidbody>();
+        _compRigidbody = GetComponent<Rigidbody>();
         direction = (playerPosition - transform.position).normalized;
     }
 
     void Update()
     {
         transform.Rotate(Vector3.forward, rotationSpeed * Time.deltaTime);
-        rb.velocity = direction * speed;
+        _compRigidbody.velocity = direction * speed;
     }
     private void OnTriggerEnter(Collider other)
     {
@@ -44,7 +44,7 @@ public class AsteroideController : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
-    public void AttackPlayer()
+    protected void AttackPlayer()
     {
         player.Life = player.Life - damage;
     }

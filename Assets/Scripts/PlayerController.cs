@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed;
     private Rigidbody _compRigidbody;
+    [SerializeField] private GameManagerController gameManager;
     private Vector2 movementInput;
     private Quaternion qx = Quaternion.identity;
     private Quaternion qy = Quaternion.identity;
@@ -14,7 +15,7 @@ public class PlayerController : MonoBehaviour
     private float sinAngle;
     private float cosAngle;
     [SerializeField] private int life;
-    public event Action<int> LifeChanged = vida => { };
+    public event Action<int> lifeChanged;
     public int Life
     {
         get
@@ -24,15 +25,21 @@ public class PlayerController : MonoBehaviour
         set
         {
             life = value;
-            LifeChanged?.Invoke(life);
+            lifeChanged?.Invoke(life);
         }
     }
     private void Awake()
     {
         _compRigidbody = GetComponent<Rigidbody>();
-        LifeChanged?.Invoke(life);
     }
-
+    private void OnEnable()
+    {
+        lifeChanged += gameManager.UiManager.ActualizarUIVida;
+    }
+    private void Start()
+    {
+        gameManager.UiManager.ActualizarUIVida(life);
+    }
     public void OnMove(InputAction.CallbackContext context)
     {
         movementInput = context.ReadValue<Vector2>() * speed;
