@@ -1,20 +1,24 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManagerController : MonoBehaviour
 {
     [SerializeField] private UIManagerController uiManager;
-    public UIManagerController UiManager
+    private int score;
+    [SerializeField] private int secondIntervalIncrease;
+    [SerializeField] private int scoreIncrement;
+    private float timer = 0;
+    private void Start()
     {
-        get
+        uiManager.ActualizarUIPuntos(score);
+    }
+    private void Update()
+    {
+        timer = timer + Time.deltaTime;
+        if (timer > secondIntervalIncrease)
         {
-           return uiManager;
-        }
-        set
-        {
-            uiManager = value;
+            score = score + scoreIncrement;
+            uiManager.ActualizarUIPuntos(score);
+            timer = 0;
         }
     }
-
 }

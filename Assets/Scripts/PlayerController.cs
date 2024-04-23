@@ -1,12 +1,11 @@
 using UnityEngine;
 using System;
 using UnityEngine.InputSystem;
-
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed;
     private Rigidbody _compRigidbody;
-    [SerializeField] private GameManagerController gameManager;
+    [SerializeField] private UIManagerController uiManager;
     private Vector2 movementInput;
     private Quaternion qx = Quaternion.identity;
     private Quaternion qy = Quaternion.identity;
@@ -16,6 +15,7 @@ public class PlayerController : MonoBehaviour
     private float cosAngle;
     [SerializeField] private int life;
     public event Action<int> lifeChanged;
+    public event Action isDied;
     public int Life
     {
         get
@@ -34,17 +34,17 @@ public class PlayerController : MonoBehaviour
     }
     private void OnEnable()
     {
-        lifeChanged += gameManager.UiManager.ActualizarUIVida;
+        lifeChanged += uiManager.ActualizarUIVida;
+        isDied += uiManager.ShowDeadScreen;
     }
     private void Start()
     {
-        gameManager.UiManager.ActualizarUIVida(life);
+        uiManager.ActualizarUIVida(life);
     }
     public void OnMove(InputAction.CallbackContext context)
     {
         movementInput = context.ReadValue<Vector2>() * speed;
     }
-
     private void FixedUpdate()
     {
         Vector3 movement = new Vector3(movementInput.x, movementInput.y, 0) * speed * Time.deltaTime;
@@ -97,6 +97,36 @@ public class PlayerController : MonoBehaviour
         else
         {
             transform.rotation = Quaternion.identity;
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Asteroide")
+        {
+            AsteroideController asteroide = other.gameObject.GetComponent<AsteroideController>();
+            if (life > 1)
+            {
+                Life = Life - asteroide.Damage;
+                Destroy(other.gameObject);
+            }
+            else
+            {
+                isDied?.Invoke();
+            }
+
+        }
+        else if (other.gameObject.tag == "Garbage")
+        {
+            GarbageController garbage = other.gameObject.GetComponent<GarbageController>();
+            if (life > 1)
+            {
+                Life = Life - garbage.Damage;
+                Destroy(other.gameObject);
+            }
+            else
+            {
+                isDied?.Invoke();
+            }
         }
     }
 }
